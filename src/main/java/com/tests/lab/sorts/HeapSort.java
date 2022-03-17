@@ -1,8 +1,5 @@
 package com.tests.lab.sorts;
 
-/**
- *
- */
 public class HeapSort implements Sort {
 
     public static void sort(int[] array) {

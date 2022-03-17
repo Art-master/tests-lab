@@ -1,18 +1,26 @@
 package com.tests.lab;
 
+import com.tests.lab.classloaders.ClassLoaderDemo;
+import com.tests.lab.data_structures.Array;
+import com.tests.lab.design_patterns.factory.factory_method.Factory;
+import com.tests.lab.design_patterns.factory_method.FactoryMethod;
 import com.tests.lab.sorts.*;
-import com.tests.lab.threads.Deadlock;
 
+import java.text.NumberFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 
 public class Main {
 
     public static void main(String[] args) {
-        displaySorts();
-
+        //displaySorts();
+        //displayTasks();
+        //patterns();
 
         System.out.println("=============== DEADLOCK ===============");
-        new Deadlock().create();
+        //new Deadlock().create();
+
+        ClassLoaderDemo.main(args);
 
     }
 
@@ -52,5 +60,26 @@ public class Main {
         System.out.println(Arrays.toString(array));
         HeapSort.sort(array);
         System.out.println(Arrays.toString(array));
+    }
+
+    private static void displayTasks() {
+        System.out.println("=============== Task 1/ 2 Minimum values ===============");
+        int[] array = new int[]{2, 1, 4, 4, 0, 7, 4, 1, -10, 0, 10};
+        System.out.println(Arrays.toString(array));
+        int[] res = Array.task1(array);
+        System.out.println(Arrays.toString(res));
+
+        System.out.println("=============== Task 2/ 2 Not repeatable values ===============");
+        double[] arr = new double[]{2, 1, 4.0, 4, 4, 7, 2, 1, -10, 0, -10, 140};
+        System.out.println(Arrays.toString(arr));
+        double[] result = Array.task2(arr, 3);
+        System.out.println(Arrays.toString(result));
+
+
+    }
+
+    private static void patterns() {
+        //FactoryMethod.execute();
+        Factory.execute();
     }
 }
