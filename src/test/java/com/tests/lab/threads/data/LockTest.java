@@ -14,7 +14,10 @@ public class LockTest {
         public void perform() {
             lock.lock();
             try {
+                Thread.sleep(1000);
                 System.out.println("Inside object thread: " + Thread.currentThread().getName());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             } finally {
                 lock.unlock();
             }
@@ -25,6 +28,7 @@ public class LockTest {
 
             if (isLockAcquired) {
                 try {
+                    Thread.sleep(1000);
                     System.out.println("Object not locked: " + Thread.currentThread().getName());
                 } finally {
                     lock.unlock();
@@ -35,7 +39,18 @@ public class LockTest {
 
     @Test
     void ReentrantLockTest() {
-        Thread thread = new Thread(() -> System.out.println(Thread.currentThread().getName() + "executed"));
-        Thread thread2 = new Thread(() -> System.out.println(Thread.currentThread().getName() + "executed"));
+        SharedObject object = new SharedObject();
+
+        Thread thread = new Thread(object::perform);
+        Thread thread2 = new Thread(() -> {
+            try {
+                object.performTryLock();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+
+        thread.start();
+        thread2.start();
     }
 }
