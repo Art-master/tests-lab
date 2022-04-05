@@ -1,4 +1,4 @@
-package com.tests.lab.threads.data;
+package com.tests.lab.concurrent;
 
 import org.junit.jupiter.api.Test;
 

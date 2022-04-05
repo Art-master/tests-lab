@@ -1,4 +1,4 @@
-package com.tests.lab.threads;
+package com.tests.lab.concurrent.tasks;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -6,48 +6,43 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Неблокирующий стек на Semaphore
+ * Неблокирующий стек на AtomicReference
  */
-public class NonBlockingSemaphoreStackTest {
+public class NonBlockingStackTest {
     private static class Stack<T> {
-        private Element<T> head = null;
-        private final Semaphore semaphore = new Semaphore(1);
+        private final AtomicReference<Element<T>> head = new AtomicReference<>();
 
         public Stack<T> push(T value) {
-            try {
-                //Запрашиваем разрешение и ждем что бы не случилось
-                semaphore.acquireUninterruptibly();
-                final Element<T> current = new Element<>();
-                current.value = value;
-                current.previous = head;
-                head = current;
-            } finally {
-                semaphore.release();
-            }
+            final Element<T> current = new Element<>();
+            current.value = value;
+
+            Element<T> recent;
+            do {
+                recent = head.get();
+                current.previous = recent;
+            } while (!head.compareAndSet(recent, current));
             return this;
+
         }
 
         public T pop() {
-            Element<T> current;
-            try {
-                //Запрашиваем разрешение и ждем что бы не случилось
-                semaphore.acquireUninterruptibly();
-                current = head;
-                if (current == null) {
+            Element<T> result;
+            Element<T> previous;
+            do {
+                result = head.get();
+                if (result == null) {
                     return null;
                 }
-                head = current.previous;
-            } finally {
-                semaphore.release();
-            }
-            return current.value;
+                previous = result.previous;
+            } while (!head.compareAndSet(result, previous));
+            return result.value;
         }
 
         public int size() {
-            Element<T> element = head;
+            Element<T> element = head.get();
             int size = 0;
             while (element != null) {
                 size++;
@@ -64,7 +59,7 @@ public class NonBlockingSemaphoreStackTest {
 
 
     @Test
-    @DisplayName("Тест стека на построенного на Semaphore")
+    @DisplayName("Тест стека на построенного на AtomicReference")
     void stackTest() {
         int threadNum = 100;
         ExecutorService service = Executors.newFixedThreadPool(threadNum);
@@ -73,8 +68,6 @@ public class NonBlockingSemaphoreStackTest {
         for (int i = 0; i < threadNum; i++) {
             service.submit(() -> stack.push(integer));
         }
-
-        //Ждем пока все предыдущие потоки запишут данные
         while (stack.size() != threadNum) ;
 
         for (int i = 0; i < threadNum; i++) {

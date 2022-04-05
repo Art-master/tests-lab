@@ -1,4 +1,4 @@
-package com.tests.lab.threads;
+package com.tests.lab.threads.tasks;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

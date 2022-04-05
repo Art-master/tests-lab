@@ -1,14 +1,12 @@
-package com.tests.lab.threads;
+package com.tests.lab.concurrent;
 
-import com.tests.lab.core.InitialBlocks;
-import com.tests.lab.threads.data.CounterUsingMutex;
-import com.tests.lab.threads.data.DelayQueueUsingTimedSemaphore;
-import com.tests.lab.threads.data.LoginQueueUsingSemaphore;
+import org.apache.commons.lang3.concurrent.TimedSemaphore;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
@@ -16,6 +14,26 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("Semaphore tests")
 public class SemaphoreTest {
+
+    public static class LoginQueueUsingSemaphore {
+        private final Semaphore semaphore;
+
+        public LoginQueueUsingSemaphore(int slotLimit) {
+            semaphore = new Semaphore(slotLimit);
+        }
+
+        public boolean tryLogin() {
+            return semaphore.tryAcquire();
+        }
+
+        public void logout() {
+            semaphore.release();
+        }
+
+        public int availableSlots() {
+            return semaphore.availablePermits();
+        }
+    }
 
     @Test
     @DisplayName("Обычный Semaphore")
@@ -37,6 +55,22 @@ public class SemaphoreTest {
         assertTrue(loginQueue.tryLogin());
     }
 
+    public static class DelayQueueUsingTimedSemaphore {
+        private final TimedSemaphore semaphore;
+
+        public DelayQueueUsingTimedSemaphore(long period, int slotLimit) {
+            semaphore = new TimedSemaphore(period, TimeUnit.SECONDS, slotLimit);
+        }
+
+        public boolean tryAdd() {
+            return semaphore.tryAcquire();
+        }
+
+        public int availableSlots() {
+            return semaphore.getAvailablePermits();
+        }
+    }
+
     @Test
     public void givenDelayQueue_whenReachLimit_thenBlocked() throws InterruptedException {
         int slots = 50;
@@ -55,6 +89,33 @@ public class SemaphoreTest {
         Thread.sleep(1000);
         executorService.awaitTermination(5, TimeUnit.SECONDS);
         assertTrue(delayQueue.availableSlots() > 0);
+    }
+
+    public static class CounterUsingMutex {
+
+        private final Semaphore mutex;
+        private int count;
+
+        public CounterUsingMutex() {
+            mutex = new Semaphore(1);
+            count = 0;
+        }
+
+        public void increase() throws InterruptedException {
+            mutex.acquire();
+            this.count = this.count + 1;
+            Thread.sleep(1000);
+            mutex.release();
+
+        }
+
+        public int getCount() {
+            return this.count;
+        }
+
+        public boolean hasQueuedThreads() {
+            return mutex.hasQueuedThreads();
+        }
     }
 
 
