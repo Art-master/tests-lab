@@ -1,14 +1,13 @@
 package com.tests.lab;
 
-import com.tests.lab.classloaders.ClassLoaderDemo;
 import com.tests.lab.data_structures.Array;
 import com.tests.lab.design_patterns.factory.factory_method.Factory;
-import com.tests.lab.design_patterns.factory_method.FactoryMethod;
 import com.tests.lab.sorts.*;
 
-import java.text.NumberFormat;
+import javax.management.*;
+import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 
 public class Main {
 
@@ -17,10 +16,16 @@ public class Main {
         //displayTasks();
         //patterns();
 
-        System.out.println("=============== DEADLOCK ===============");
+        //System.out.println("=============== DEADLOCK ===============");
         //new Deadlock().create();
 
-        ClassLoaderDemo.main(args);
+        //ClassLoaderDemo.main(args);
+
+
+        var list = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4));
+        var f = list.subList(1, 3);
+        f.add(6);
+        f.add(7);
 
     }
 
